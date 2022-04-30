@@ -22,6 +22,12 @@ def parse_args():
     parser.add_argument("--data_path", type=str,
                         default="data/reuters.json",
                         help="path to dataset")
+    parser.add_argument("--support_DA_path", type=str,
+                        default="",
+                        help="data augmentation for support sets.")
+    parser.add_argument("--support_DA_vocab", type=str,
+                        choices=["", "use_old", "use_DA"],
+                        default="use_old",)
     parser.add_argument("--dataset", type=str, default="reuters",
                         help="name of the dataset. "
                         "Options: [20newsgroup, amazon, huffpost, "
@@ -257,7 +263,17 @@ def main():
     set_seed(args.seed)
 
     # load data
-    train_data, val_data, test_data, vocab = loader.load_dataset(args)
+    if args.support_DA_path == '' or args.support_DA_vocab == 'use_old':
+        train_data, val_data, test_data, vocab = loader.load_dataset(args)
+        DA = {"train": None, "val": None, "test": None}
+    
+    if args.support_DA_path != '':
+        if args.support_DA_vocab == 'use_old':
+            train_DA, val_DA, test_DA = loader.load_DA_data(args, vocab)
+        elif args.support_DA_vocab == 'use_DA':
+            train_DA, val_DA, test_DA, vocab = loader.load_DA_data(args)
+            train_data, val_data, test_data = loader.load_dataset(args, vocab)
+        DA = {"train": train_DA, "val": val_DA, "test": test_DA}
 
     # initialize model
     model = {}
@@ -266,7 +282,7 @@ def main():
 
     if args.mode == "train":
         # train model on train_data, early stopping based on val_data
-        train_utils.train(train_data, val_data, model, args)
+        train_utils.train(train_data, val_data, model, args, DA=DA)
 
     elif args.mode == "finetune":
         # sample an example from each class during training
@@ -287,12 +303,12 @@ def main():
     # and validation examples.
     if args.mode != "finetune":
         val_acc, val_std = train_utils.test(val_data, model, args,
-                                            args.val_episodes)
+                                            args.val_episodes, DA=DA['val'])
     else:
         val_acc, val_std = 0, 0
 
     test_acc, test_std = train_utils.test(test_data, model, args,
-                                          args.test_episodes)
+                                          args.test_episodes, DA=DA['test'])
 
     if args.result_path:
         directory = args.result_path[:args.result_path.rfind("/")]

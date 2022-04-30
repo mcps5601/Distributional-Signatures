@@ -12,10 +12,11 @@ import dataset.stats as stats
 
 
 class ParallelSampler():
-    def __init__(self, data, args, num_episodes=None):
+    def __init__(self, data, args, num_episodes=None, DA=None):
         self.data = data
         self.args = args
         self.num_episodes = num_episodes
+        self.DA = DA
 
         self.all_classes = np.unique(self.data['label'])
         self.num_classes = len(self.all_classes)
@@ -105,7 +106,7 @@ class ParallelSampler():
             max_query_len = np.max(self.data['text_len'][query_idx])
 
             support = utils.select_subset(self.data, {}, ['text', 'text_len', 'label'],
-                                     support_idx, max_support_len)
+                                     support_idx, max_support_len, self.DA)
             query = utils.select_subset(self.data, {}, ['text', 'text_len', 'label'],
                                    query_idx, max_query_len)
 

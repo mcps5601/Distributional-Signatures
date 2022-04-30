@@ -166,7 +166,7 @@ def _load_json(path):
     text_len = []
     with open(path, 'r', errors='ignore') as f:
         data = []
-        for line in f:
+        for idx, line in enumerate(f):
             row = json.loads(line)
 
             # count the number of examples per label
@@ -177,7 +177,8 @@ def _load_json(path):
 
             item = {
                 'label': int(row['label']),
-                'text': row['text'][:500]  # truncate the text to 500 tokens
+                'text': row['text'][:500],  # truncate the text to 500 tokens
+                'index': idx
             }
 
             text_len.append(len(row['text']))
@@ -265,6 +266,7 @@ def _data_to_nparray(data, vocab, args):
         Convert the data into a dictionary of np arrays for speed.
     '''
     doc_label = np.array([x['label'] for x in data], dtype=np.int64)
+    doc_index = np.array([x['index'] for x in data], dtype=np.int64)
 
     raw = np.array([e['text'] for e in data], dtype=object)
 
@@ -317,13 +319,14 @@ def _data_to_nparray(data, vocab, args):
 
         vocab_size = vocab.vectors.size()[0]
 
-    text_len, text, doc_label, raw = _del_by_idx(
-            [text_len, text, doc_label, raw], del_idx, 0)
+    text_len, text, doc_label, doc_index, raw = _del_by_idx(
+            [text_len, text, doc_label, doc_index, raw], del_idx, 0)
 
     new_data = {
         'text': text,
         'text_len': text_len,
         'label': doc_label,
+        'index': doc_index,
         'raw': raw,
         'vocab_size': vocab_size,
     }
@@ -380,7 +383,7 @@ def _split_dataset(data, finetune_split):
     return data_train, data_val
 
 
-def load_dataset(args):
+def load_dataset(args, vocab_exists=None):
     if args.dataset == '20newsgroup':
         train_classes, val_classes, test_classes = _get_20newsgroup_classes(args)
     elif args.dataset == 'amazon':
@@ -411,30 +414,34 @@ def load_dataset(args):
     tprint('Loading data')
     all_data = _load_json(args.data_path)
 
-    tprint('Loading word vectors')
-    path = os.path.join(args.wv_path, args.word_vector)
-    if not os.path.exists(path):
-        # Download the word vector and save it locally:
-        tprint('Downloading word vectors')
-        import urllib.request
-        urllib.request.urlretrieve(
-            'https://dl.fbaipublicfiles.com/fasttext/vectors-wiki/wiki.en.vec',
-            path)
+    if not vocab_exists:
+        tprint('Loading word vectors')
+        path = os.path.join(args.wv_path, args.word_vector)
+        if not os.path.exists(path):
+            # Download the word vector and save it locally:
+            tprint('Downloading word vectors')
+            import urllib.request
+            urllib.request.urlretrieve(
+                'https://dl.fbaipublicfiles.com/fasttext/vectors-wiki/wiki.en.vec',
+                path)
 
-    vectors = Vectors(args.word_vector, cache=args.wv_path)
-    vocab = Vocab(collections.Counter(_read_words(all_data)), vectors=vectors,
-                  specials=['<pad>', '<unk>'], min_freq=5)
+        vectors = Vectors(args.word_vector, cache=args.wv_path)
+        
+        vocab = Vocab(collections.Counter(_read_words(all_data)), vectors=vectors,
+                    specials=['<pad>', '<unk>'], min_freq=5)
 
-    # print word embedding statistics
-    wv_size = vocab.vectors.size()
-    tprint('Total num. of words: {}, word vector dimension: {}'.format(
-        wv_size[0],
-        wv_size[1]))
+        # print word embedding statistics
+        wv_size = vocab.vectors.size()
+        tprint('Total num. of words: {}, word vector dimension: {}'.format(
+            wv_size[0],
+            wv_size[1]))
 
-    num_oov = wv_size[0] - torch.nonzero(
-            torch.sum(torch.abs(vocab.vectors), dim=1)).size()[0]
-    tprint(('Num. of out-of-vocabulary words'
-           '(they are initialized to zeros): {}').format( num_oov))
+        num_oov = wv_size[0] - torch.nonzero(
+                torch.sum(torch.abs(vocab.vectors), dim=1)).size()[0]
+        tprint(('Num. of out-of-vocabulary words'
+            '(they are initialized to zeros): {}').format( num_oov))
+    elif vocab_exists:
+        vocab = vocab_exists
 
     # Split into meta-train, meta-val, meta-test data
     train_data, val_data, test_data = _meta_split(
@@ -463,6 +470,8 @@ def load_dataset(args):
         else:
             ebd = WORDEBD(vocab, finetune_ebd=False)
 
+        # 這邊只是初始化一個可以做 average embedding 的 module 在 train_data dict 中
+        # 並非已經做完 embeddings 的平均
         train_data['avg_ebd'] = AVG(ebd, args)
         if args.cuda != -1:
             train_data['avg_ebd'] = train_data['avg_ebd'].cuda(args.cuda)
@@ -475,4 +484,45 @@ def load_dataset(args):
     if args.mode == 'finetune':
         train_data, val_data = _split_dataset(train_data, args.finetune_split)
 
-    return train_data, val_data, test_data, vocab
+    if not vocab_exists:
+        return train_data, val_data, test_data, vocab
+    elif vocab_exists:
+        return train_data, val_data, test_data
+
+def load_DA_data(args, vocab_exists=None):
+    if args.dataset == 'huffpost':
+        train_classes, val_classes, test_classes = _get_huffpost_classes(args)
+
+    tprint('Loading data')
+    all_data = _load_json(args.support_DA_path)
+    # Split into meta-train, meta-val, meta-test data
+    train_data, val_data, test_data = _meta_split(
+            all_data, train_classes, val_classes, test_classes)
+
+    if not vocab_exists:
+        vectors = Vectors(args.word_vector, cache=args.wv_path)
+        vocab = Vocab(collections.Counter(_read_words(all_data)), vectors=vectors,
+                    specials=['<pad>', '<unk>'], min_freq=5)
+
+        # print word embedding statistics
+        wv_size = vocab.vectors.size()
+        tprint('Total num. of words: {}, word vector dimension: {}'.format(
+            wv_size[0],
+            wv_size[1]))
+
+        num_oov = wv_size[0] - torch.nonzero(
+                torch.sum(torch.abs(vocab.vectors), dim=1)).size()[0]
+        tprint(('Num. of out-of-vocabulary words'
+            '(they are initialized to zeros): {}').format( num_oov))
+    elif vocab_exists:
+        vocab = vocab_exists
+
+    # Convert everything into np array for fast data loading
+    train_data = _data_to_nparray(train_data, vocab, args)
+    val_data = _data_to_nparray(val_data, vocab, args)
+    test_data = _data_to_nparray(test_data, vocab, args)
+
+    if not vocab_exists:
+        return train_data, val_data, test_data, vocab
+    elif vocab_exists:
+        return train_data, val_data, test_data

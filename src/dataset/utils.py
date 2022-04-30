@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import datetime
 
 
@@ -28,7 +29,7 @@ def to_tensor(data, cuda, exclude_keys=[]):
     return data
 
 
-def select_subset(old_data, new_data, keys, idx, max_len=None):
+def select_subset(old_data, new_data, keys, idx, max_len=None, DA=None):
     '''
         modifies new_data
 
@@ -38,6 +39,11 @@ def select_subset(old_data, new_data, keys, idx, max_len=None):
         @param idx list of indices to select
         @param max_len (optional) select first max_len entries along dim 1
     '''
+    if DA:
+        DA_indice = [int(np.argwhere(DA['index'] == old_data['index'][i])) for i in idx]
+        max_len = np.max(DA['text_len'][DA_indice])
+        idx = DA_indice
+        old_data = DA
 
     for k in keys:
         new_data[k] = old_data[k][idx]

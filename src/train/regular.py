@@ -13,7 +13,7 @@ from dataset.parallel_sampler import ParallelSampler
 from train.utils import named_grad_param, grad_param, get_norm
 
 
-def train(train_data, val_data, model, args):
+def train(train_data, val_data, model, args, DA=None):
     '''
         Train the model
         Use val_data to do early stopping
@@ -38,9 +38,9 @@ def train(train_data, val_data, model, args):
     print("{}, Start training".format(
         datetime.datetime.now().strftime('%02y/%02m/%02d %H:%M:%S')), flush=True)
 
-    train_gen = ParallelSampler(train_data, args, args.train_episodes)
-    train_gen_val = ParallelSampler(train_data, args, args.val_episodes)
-    val_gen = ParallelSampler(val_data, args, args.val_episodes)
+    train_gen = ParallelSampler(train_data, args, args.train_episodes, DA['train'])
+    train_gen_val = ParallelSampler(train_data, args, args.val_episodes, DA['train'])
+    val_gen = ParallelSampler(val_data, args, args.val_episodes, DA['val'])
 
     for ep in range(args.train_epochs):
         sampled_tasks = train_gen.get_epoch()
@@ -174,7 +174,7 @@ def train_one(task, model, opt, args, grad):
     opt.step()
 
 
-def test(test_data, model, args, num_episodes, verbose=True, sampled_tasks=None):
+def test(test_data, model, args, num_episodes, verbose=True, sampled_tasks=None, DA=None):
     '''
         Evaluate the model on a bag of sampled tasks. Return the mean accuracy
         and its std.
@@ -184,7 +184,7 @@ def test(test_data, model, args, num_episodes, verbose=True, sampled_tasks=None)
 
     if sampled_tasks is None:
         sampled_tasks = ParallelSampler(test_data, args,
-                                        num_episodes).get_epoch()
+                                        num_episodes, DA).get_epoch()
 
     acc = []
     if not args.notqdm:
