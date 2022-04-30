@@ -103,7 +103,7 @@ def train(train_data, val_data, model, args):
     best_acc = 0
     sub_cycle = 0
     best_path = None
-
+    # meta_opt
     opt = torch.optim.Adam(grad_param(model, ['ebd', 'clf']), lr=args.lr)
 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
@@ -131,7 +131,7 @@ def train(train_data, val_data, model, args):
             train_episodes = tqdm(train_episodes, ncols=80, leave=False,
                                   desc=colored('Training on train', 'yellow'))
 
-        for _ in train_episodes:
+        for _ in train_episodes: # 對照 https://github.com/facebookresearch/higher/blob/main/examples/maml-omniglot.py#L119
             # update the initialization based on a batch of tasks
             total_grad = {'ebd': [], 'clf': []}
 
@@ -317,7 +317,7 @@ def train_one_fomaml(task, fast, args, total_grad):
 
     # map class label into 0,...,num_classes-1
     YS, YQ = fast['clf'].reidx_y(support['label'], query['label'])
-
+    # inner_opt
     opt = torch.optim.SGD(grad_param(fast, ['ebd', 'clf']),
                           lr=args.maml_stepsize)
 
