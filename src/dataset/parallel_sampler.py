@@ -105,10 +105,13 @@ class ParallelSampler():
             max_support_len = np.max(self.data['text_len'][support_idx])
             max_query_len = np.max(self.data['text_len'][query_idx])
 
+            support_DA = self.DA if self.args.use_support_DA else None 
+            query_DA = self.DA if self.args.use_query_DA else None
+
             support = utils.select_subset(self.data, {}, ['text', 'text_len', 'label'],
-                                     support_idx, max_support_len, self.DA)
+                    support_idx, max_support_len, support_DA, self.args.aug_mode)
             query = utils.select_subset(self.data, {}, ['text', 'text_len', 'label'],
-                                   query_idx, max_query_len)
+                    query_idx, max_query_len, query_DA, self.args.aug_mode)
 
             if self.args.embedding in ['idf', 'meta', 'meta_mlp']:
                 # compute inverse document frequency over the meta-train set
