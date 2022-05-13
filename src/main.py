@@ -22,12 +22,66 @@ def parse_args():
     parser.add_argument("--data_path", type=str,
                         default="data/reuters.json",
                         help="path to dataset")
-    parser.add_argument("--support_DA_path", type=str,
-                        default="",
-                        help="data augmentation for support sets.")
-    parser.add_argument("--support_DA_vocab", type=str,
-                        choices=["", "use_old", "use_DA"],
-                        default="use_old",)
+    parser.add_argument(
+        "--DA_path",
+        type=str,
+        default="",
+        help="Data augmentation file. This argument is for elong_aug and shot_aug.",
+    )
+    parser.add_argument(
+        "--elongation",
+        action="store_true",
+        default=False,
+        help="Add DA sentence behind each sentence.",
+    )
+    parser.add_argument(
+        "--aug_mode",
+        choices=["elongation", "shot", "task"],
+        help='Choice for data augmentation method.',
+    )
+    parser.add_argument(
+        "--task_aug_target",
+        choices=["train", "train_val"],
+        help='Task augmentation on meta-training classes.',
+        default="train",
+    )
+    parser.add_argument(
+        "--task_aug_test",
+        action="store_true",
+        help="Augment test classes during task augmentation.",
+        default=False,
+    )
+    parser.add_argument(
+        "--test_new_only",
+        action="store_true",
+        help="Task augmentation on test classes but remove the old classes.",
+        default=False,
+    )
+    parser.add_argument(
+        "--test_DA",
+        action="store_true",
+        help="DA on test data. This argument is for elong_aug and shot_aug.",
+        default=False,
+    )
+    parser.add_argument(
+        "--use_support_DA",
+        action="store_true",
+        help="DA support sets. This argument is for elong_aug and shot_aug.",
+        default=False,     
+    )
+    parser.add_argument(
+        "--use_query_DA",
+        action="store_true",
+        help="DA query sets. This argument is for elong_aug and shot_aug.",
+        default=False,
+    )
+    parser.add_argument(
+        "--DA_vocab",
+        type=str,
+        choices=["", "use_old", "use_DA"],
+        help="Determine which vocab used for DA sentences. This argument is for elong_aug and shot_aug.",
+        default="use_old",
+    )
     parser.add_argument("--dataset", type=str, default="reuters",
                         help="name of the dataset. "
                         "Options: [20newsgroup, amazon, huffpost, "
@@ -244,6 +298,12 @@ def print_args(args):
           '-.__ __ _,','    '`-..___;-...__   ,.'\ ____.___.'
           `'^--'..'   '-`-^-''--    `-^-'`.'''''''`.,^.`.--' mh
     """)
+    if args.DA_path != '':
+        print("Now using data augmentation.")
+        print(f"The vocabulary used: {args.DA_vocab}.")
+
+    if args.test_DA:
+        print("Also augmenting test data.")
 
 
 def set_seed(seed):
@@ -262,18 +322,21 @@ def main():
 
     set_seed(args.seed)
 
-    # load data
-    if args.support_DA_path == '' or args.support_DA_vocab == 'use_old':
+    if args.DA_path == '' or args.DA_vocab == 'use_old':
         train_data, val_data, test_data, vocab = loader.load_dataset(args)
-        DA = {"train": None, "val": None, "test": None}
+        DA_data = {"train": None, "val": None, "test": None}
     
-    if args.support_DA_path != '':
-        if args.support_DA_vocab == 'use_old':
+    if args.DA_path != '':
+        if not args.use_support_DA and not args.use_query_DA:
+            raise ValueError(
+                'DA should be performed for either support or query sets.'
+            )
+        if args.DA_vocab == 'use_old':
             train_DA, val_DA, test_DA = loader.load_DA_data(args, vocab)
-        elif args.support_DA_vocab == 'use_DA':
+        elif args.DA_vocab == 'use_DA':
             train_DA, val_DA, test_DA, vocab = loader.load_DA_data(args)
             train_data, val_data, test_data = loader.load_dataset(args, vocab)
-        DA = {"train": train_DA, "val": val_DA, "test": test_DA}
+        DA_data = {"train": train_DA, "val": val_DA, "test": test_DA}
 
     # initialize model
     model = {}
@@ -282,7 +345,7 @@ def main():
 
     if args.mode == "train":
         # train model on train_data, early stopping based on val_data
-        train_utils.train(train_data, val_data, model, args, DA=DA)
+        train_utils.train(train_data, val_data, model, args, DA_data=DA_data)
 
     elif args.mode == "finetune":
         # sample an example from each class during training
@@ -303,12 +366,12 @@ def main():
     # and validation examples.
     if args.mode != "finetune":
         val_acc, val_std = train_utils.test(val_data, model, args,
-                                            args.val_episodes, DA=DA['val'])
+                                            args.val_episodes, DA_data=DA_data['val'])
     else:
         val_acc, val_std = 0, 0
 
     test_acc, test_std = train_utils.test(test_data, model, args,
-                                          args.test_episodes, DA=DA['test'])
+                                          args.test_episodes, DA_data=DA_data['test'])
 
     if args.result_path:
         directory = args.result_path[:args.result_path.rfind("/")]
