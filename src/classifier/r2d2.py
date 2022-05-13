@@ -19,8 +19,11 @@ class R2D2(BASE):
         # lambda and alpha is learned in the log space
 
         # cached tensor for speed
+        column_dim = self.args.way
+        if args.aug_mode == 'shot' and args.use_support_DA:
+            column_dim*=2
         self.I_support = nn.Parameter(
-            torch.eye(self.args.shot * self.args.way, dtype=torch.float),
+            torch.eye(self.args.shot * column_dim, dtype=torch.float),
             requires_grad=False)
         self.I_way = nn.Parameter(torch.eye(self.args.way, dtype=torch.float),
                                   requires_grad=False)
