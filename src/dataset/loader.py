@@ -136,10 +136,21 @@ def _get_huffpost_classes(args):
     '''
         @return list of classes associated with each split
     '''
-
     train_classes = list(range(20))
     val_classes = list(range(20,25))
     test_classes = list(range(25,41))
+
+    if args.aug_mode == 'task':
+        if args.task_aug_target == 'train':
+            train_classes = train_classes + list(range(41, 61))
+        elif args.task_aug_target == 'train_val':
+            train_classes = train_classes + list(range(41, 61))
+            val_classes = val_classes + list(range(61, 66))
+        if args.task_aug_test:
+            test_classes = test_classes + list(range(66, 82))
+        elif args.test_new_only:
+            test_classes = list(range(66, 82))
+        
 
     return train_classes, val_classes, test_classes
 
@@ -494,7 +505,7 @@ def load_DA_data(args, vocab_exists=None):
         train_classes, val_classes, test_classes = _get_huffpost_classes(args)
 
     tprint('Loading data')
-    all_data = _load_json(args.support_DA_path)
+    all_data = _load_json(args.DA_path)
     # Split into meta-train, meta-val, meta-test data
     train_data, val_data, test_data = _meta_split(
             all_data, train_classes, val_classes, test_classes)
