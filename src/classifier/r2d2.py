@@ -53,7 +53,7 @@ class R2D2(BASE):
 
         return Y_onehot
 
-    def forward(self, XS, YS, XQ, YQ):
+    def forward(self, XS, YS, XQ, YQ, test_mode=False):
         '''
             @param XS (support x): support_size x ebd_dim
             @param YS (support y): support_size
@@ -63,6 +63,8 @@ class R2D2(BASE):
             @return acc
             @return loss
         '''
+        if self.args.aug_mode == 'task' and test_mode:
+            old_acc_masks = YQ < 41
 
         YS, YQ = self.reidx_y(YS, YQ)
 
@@ -73,6 +75,9 @@ class R2D2(BASE):
         pred = (10.0 ** self.alpha) * XQ @ W + self.beta
 
         loss = F.cross_entropy(pred, YQ)
+
+        if self.args.aug_mode == 'task' and test_mode:
+            pred, YQ = pred[old_acc_masks], YQ[old_acc_masks]
 
         acc = BASE.compute_acc(pred, YQ)
 

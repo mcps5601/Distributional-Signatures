@@ -41,7 +41,7 @@ def parse_args():
     )
     parser.add_argument(
         "--task_aug_target",
-        choices=["train", "train_val"],
+        choices=["train", "train_val", "val"],
         help='Task augmentation on meta-training classes.',
         default="train",
     )
@@ -49,6 +49,16 @@ def parse_args():
         "--task_aug_test",
         action="store_true",
         help="Augment test classes during task augmentation.",
+        default=False,
+    )
+    parser.add_argument(
+        "--task_aug_exclude_test_query",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "--task_aug_exclude_val_query",
+        action="store_true",
         default=False,
     )
     parser.add_argument(
@@ -123,6 +133,8 @@ def parse_args():
                         help="#asks sampled during each validation epoch")
     parser.add_argument("--test_episodes", type=int, default=1000,
                         help="#tasks sampled during each testing epoch")
+    parser.add_argument("--test_query_size", type=int, default=-1,
+                        help="#query examples for each class for each task")
 
     # settings for finetuning baseline
     parser.add_argument("--finetune_loss_type", type=str, default="softmax",
@@ -337,6 +349,10 @@ def main():
             train_DA, val_DA, test_DA, vocab = loader.load_DA_data(args)
             train_data, val_data, test_data = loader.load_dataset(args, vocab)
         DA_data = {"train": train_DA, "val": val_DA, "test": test_DA}
+    
+    if args.aug_mode == 'task' and args.task_aug_exclude_test_query:
+        # args.val_episodes *= 2
+        args.test_episodes *= 2
 
     # initialize model
     model = {}
@@ -365,12 +381,12 @@ def main():
     # In finetune, we combine all train and val classes and split it into train
     # and validation examples.
     if args.mode != "finetune":
-        val_acc, val_std = train_utils.test(val_data, model, args,
+        val_acc, val_std, *_ = train_utils.test(val_data, model, args,
                                             args.val_episodes, DA_data=DA_data['val'])
     else:
         val_acc, val_std = 0, 0
 
-    test_acc, test_std = train_utils.test(test_data, model, args,
+    test_acc, test_std, *_ = train_utils.test(test_data, model, args,
                                           args.test_episodes, DA_data=DA_data['test'])
 
     if args.result_path:

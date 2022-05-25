@@ -146,6 +146,8 @@ def _get_huffpost_classes(args):
         elif args.task_aug_target == 'train_val':
             train_classes = train_classes + list(range(41, 61))
             val_classes = val_classes + list(range(61, 66))
+        elif args.task_aug_target == 'val':
+            val_classes = val_classes + list(range(61, 66))
         if args.task_aug_test:
             test_classes = test_classes + list(range(66, 82))
         elif args.test_new_only:

@@ -18,4 +18,5 @@ def test(test_data, model, args, verbose=True, DA_data=None):
         return finetune.test(test_data, model, args, verbose)
     else:
         DA_data = DA_data if args.test_DA else None
-        return regular.test(test_data, model, args, verbose, DA_data=DA_data)
+        test_mode = True if args.task_aug_exclude_test_query else False
+        return regular.test(test_data, model, args, verbose, DA_data=DA_data, test_mode=test_mode)

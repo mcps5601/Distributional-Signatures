@@ -68,8 +68,9 @@ def train(train_data, val_data, model, args, DA_data=None):
                 ), flush=True)
 
         # Evaluate validation accuracy
+        val_test_mode = True if args.task_aug_exclude_val_query else False
         cur_acc, cur_std = test(val_data, model, args, args.val_episodes, False,
-                                val_gen.get_epoch())
+                                val_gen.get_epoch(), test_mode=val_test_mode)
         print(("{}, {:s} {:2d}, {:s} {:s}{:>7.4f} ± {:>6.4f}, "
                "{:s} {:s}{:>7.4f}, {:s}{:>7.4f}").format(
                datetime.datetime.now().strftime('%02y/%02m/%02d %H:%M:%S'),
@@ -174,13 +175,15 @@ def train_one(task, model, opt, args, grad):
     opt.step()
 
 
-def test(test_data, model, args, num_episodes, verbose=True, sampled_tasks=None, DA_data=None):
+def test(test_data, model, args, num_episodes, verbose=True, sampled_tasks=None, DA_data=None, test_mode=None):
     '''
         Evaluate the model on a bag of sampled tasks. Return the mean accuracy
         and its std.
     '''
     model['ebd'].eval()
     model['clf'].eval()
+    if args.test_query_size != -1:
+        args.query = args.test_query_size
 
     if sampled_tasks is None:
         sampled_tasks = ParallelSampler(test_data, args,
@@ -191,11 +194,12 @@ def test(test_data, model, args, num_episodes, verbose=True, sampled_tasks=None,
         sampled_tasks = tqdm(sampled_tasks, total=num_episodes, ncols=80,
                              leave=False,
                              desc=colored('Testing on val', 'yellow'))
-
     for task in sampled_tasks:
-        acc.append(test_one(task, model, args))
+        try:
+            acc.append(test_one(task, model, args, test_mode))
 
-    acc = np.array(acc)
+        except RuntimeError:
+            continue
 
     if verbose:
         print("{}, {:s} {:>7.4f}, {:s} {:>7.4f}".format(
@@ -209,7 +213,7 @@ def test(test_data, model, args, num_episodes, verbose=True, sampled_tasks=None,
     return np.mean(acc), np.std(acc)
 
 
-def test_one(task, model, args):
+def test_one(task, model, args, test_mode):
     '''
         Evaluate the model on one sampled task. Return the accuracy.
     '''
@@ -223,6 +227,6 @@ def test_one(task, model, args):
     YQ = query['label']
 
     # Apply the classifier
-    acc, _ = model['clf'](XS, YS, XQ, YQ)
+    acc, _ = model['clf'](XS, YS, XQ, YQ, test_mode)
 
     return acc
