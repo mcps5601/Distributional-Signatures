@@ -17,7 +17,7 @@
 # n_test_class=7
 
 dataset=huffpost
-# data_path="data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json"
+# data_path="/data/workspace/Fewshot/data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json"
 data_path="data/task_aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json"
 
 n_train_class=40
@@ -40,7 +40,7 @@ if [ "$dataset" = "fewrel" ]; then
     python src/main.py \
         --cuda 0 \
         --way 5 \
-        --shot 1 \
+        --shot 5 \
         --query 25 \
         --mode train \
         --embedding meta \
@@ -71,5 +71,6 @@ else
         --meta_w_target \
         --aug_mode task \
         --task_aug_target train_val \
-        --task_aug_test
+        --task_aug_test \
+        --task_aug_exclude_test_query
 fi

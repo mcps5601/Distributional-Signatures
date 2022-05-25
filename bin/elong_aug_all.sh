@@ -17,7 +17,8 @@
 # n_test_class=7
 
 dataset=huffpost
-data_path="data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
+# data_path="data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
+data_path="/data/workspace/Fewshot/data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN_old.json"
 # data_path="data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_E_only.json"
 
 n_train_class=20

@@ -17,7 +17,8 @@
 # n_test_class=7
 
 dataset=huffpost
-data_path="data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json"
+# data_path="data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json"
+data_path="data/task_aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json"
 
 n_train_class=40
 n_val_class=10
@@ -69,5 +70,6 @@ else
         --meta_iwf \
         --meta_w_target \
         --aug_mode task \
-        --task_aug_target train_val
+        --task_aug_target train_val \
+        --task_aug_exclude_val_query
 fi
