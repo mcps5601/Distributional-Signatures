@@ -5,7 +5,7 @@ wiki.en.vec.pt
 # experiment
 result_v1/
 result/
-# result_csv/
+result_csv/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
