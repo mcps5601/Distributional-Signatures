@@ -10,19 +10,17 @@
 #n_val_class=5
 #n_test_class=10
 
-# dataset=20newsgroup
-# data_path="data/20news.json"
-# n_train_class=8
-# n_val_class=5
-# n_test_class=7
+#dataset=20newsgroup
+#data_path="data/20news.json"
+#n_train_class=8
+#n_val_class=5
+#n_test_class=7
 
-dataset=huffpost
-# data_path="data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json"
-data_path="data/task_aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json"
-
-n_train_class=40
-n_val_class=10
-n_test_class=32
+#dataset=huffpost
+#data_path="data/huffpost.json"
+#n_train_class=20
+#n_val_class=5
+#n_test_class=16
 
 #dataset=rcv1
 #data_path="data/rcv1.json"
@@ -30,11 +28,11 @@ n_test_class=32
 #n_val_class=10
 #n_test_class=24
 
-# dataset=reuters
-# data_path="data/reuters.json"
-# n_train_class=15
-# n_val_class=5
-# n_test_class=11
+dataset=reuters
+data_path="data/huffpost.json"
+n_train_class=15
+n_val_class=5
+n_test_class=11
 
 if [ "$dataset" = "fewrel" ]; then
     python src/main.py \
@@ -68,8 +66,5 @@ else
         --n_val_class=$n_val_class \
         --n_test_class=$n_test_class \
         --meta_iwf \
-        --meta_w_target \
-        --aug_mode task \
-        --task_aug_target train_val \
-        --task_aug_test
+        --meta_w_target
 fi

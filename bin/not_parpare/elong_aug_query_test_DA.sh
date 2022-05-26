@@ -17,7 +17,8 @@
 # n_test_class=7
 
 dataset=huffpost
-# data_path="data/roberta_select_huffpost_G1_10N_top-k_40_C.json"
+data_path="data/huffpost.json"
+# DA_path="data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
 
 n_train_class=20
 n_val_class=5
@@ -36,7 +37,7 @@ n_test_class=16
 # n_test_class=11
 
 generate='t5-large'
-csv_path='elong_aug_all'
+csv_path='elong_aug_query_test_DA'
 for way_shot in '5way-1shot' '5way-5shot'
 do
     if [ "$way_shot" = '5way-1shot' ]; then
@@ -50,11 +51,11 @@ do
     for data_path in 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json'
     do
         r=0
-        if [ "$data_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" ]; then
+        if [ "$DA_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" ]; then
             DA_name="C_only"
-        elif [ "$data_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json" ]; then
+        elif [ "$DA_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json" ]; then
             DA_name="EorN"
-        elif [ "$data_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" ]; then
+        elif [ "$DA_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" ]; then
             DA_name="N_only"
         fi
 
@@ -67,7 +68,7 @@ do
                 python src/main.py \
                     --cuda 0 \
                     --way 5 \
-                    --shot 5 \
+                    --shot 1 \
                     --query 25 \
                     --mode train \
                     --embedding meta \
@@ -82,7 +83,7 @@ do
                     --meta_w_target
             else
                 python src/main.py \
-                    --cuda 1 \
+                    --cuda 0 \
                     --way=$way \
                     --shot=$shot \
                     --query 25 \
@@ -96,6 +97,11 @@ do
                     --n_test_class=$n_test_class \
                     --meta_iwf \
                     --meta_w_target \
+                    --DA_vocab use_DA \
+                    --DA_path $DA_path \
+                    --aug_mode elongation \
+                    --use_query_DA \
+                    --test_DA \
                     --result_path=$result_path \
                     --csv_path=$csv_path \
                     --seed=$seed

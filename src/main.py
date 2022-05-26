@@ -12,6 +12,7 @@ import embedding.factory as ebd
 import classifier.factory as clf
 import dataset.loader as loader
 import train.factory as train_utils
+import pandas as pd
 
 
 def parse_args():
@@ -249,11 +250,55 @@ def parse_args():
     parser.add_argument("--notqdm", action="store_true", default=False,
                         help="disable tqdm")
     parser.add_argument("--result_path", type=str, default="")
+    parser.add_argument("--csv_path", type=str, default="",
+                        help="write many results into a csv file")
     parser.add_argument("--snapshot", type=str, default="",
                         help="path to the pretraiend weights")
 
     return parser.parse_args()
 
+def write_csv(
+    file_name: str,         # the same shell script write into the same file
+    dataset_name: str,      # e.g. huffpost or banking77
+    dataset_path: str,      # e.g. data/huffpost_double_text.json
+    problem_type: str,      # e.g. 5-way 1-shot
+    seed: int,
+    val_acc: float,
+    val_std: float,
+    test_acc: float,        
+    test_std: float,
+) -> None:
+    """Write the result of each experiment into a csv file.
+
+    Args:
+        file_name (str): the filename of the csv file.
+    """
+    csv_path = file_name
+    print("----------------------- write csv ------------------------------")
+    print(csv_path)
+    column_names = [
+        "dataset_name",      # e.g. huffpost or banking77
+        "dataset_path",      # e.g. data/huffpost_double_text.json
+        "problem_type", "seed",
+        "val_acc", "val_std", "test_acc", "test_std"
+    ]
+    if not os.path.exists(csv_path):
+        df = pd.DataFrame(columns=column_names)
+        df.to_csv(csv_path, index=None)
+
+    df = pd.read_csv(csv_path)
+    values = [
+        dataset_name, dataset_path, problem_type, seed,
+        val_acc, val_std, test_acc, test_std
+    ]
+    value_dict = {column_names[i]: [v] for i, v in enumerate(values)}
+
+    # config.update(value_dict)
+    df = pd.concat(
+        [df, pd.DataFrame(value_dict)],
+        ignore_index=True
+    )
+    df.to_csv(csv_path, index=None)
 
 def print_args(args):
     """
@@ -392,7 +437,7 @@ def main():
     if args.result_path:
         directory = args.result_path[:args.result_path.rfind("/")]
         if not os.path.exists(directory):
-            os.mkdirs(directory)
+            os.mkdir(directory)
 
         result = {
             "test_acc": test_acc,
@@ -404,8 +449,31 @@ def main():
         for attr, value in sorted(args.__dict__.items()):
             result[attr] = value
 
-        with open(args.result_path, "wb") as f:
-            pickle.dump(result, f, pickle.HIGHEST_PROTOCOL)
+        # original way
+        # with open(args.result_path, "wb") as f:
+        #     pickle.dump(result, f, pickle.HIGHEST_PROTOCOL)
+        print('open-----open')
+        with open(args.result_path, "w") as f:
+            print(f'rusult_path = {args.result_path}')
+            for k, v in result.items():
+                # print(k)
+                # print(v)
+                f.write(f"{k}: {v} \n")
+        print('close-----close')
+
+    D_p = args.DA_path or args.data_path
+    if args.csv_path:
+        write_csv(
+            file_name = 'result_csv/' + args.csv_path ,         # the same shell script write into the same file
+            dataset_name = args.dataset,      # e.g. huffpost or banking77
+            dataset_path = D_p,      # e.g. data/huffpost_double_text.json
+            problem_type = str(args.way) + '-way ' + str(args.shot) + '-shot',
+            seed = args.seed,
+            val_acc = result["val_acc"],
+            val_std = result["val_std"],
+            test_acc = result["test_acc"],        
+            test_std = result["test_std"]
+        )
 
 
 if __name__ == "__main__":
