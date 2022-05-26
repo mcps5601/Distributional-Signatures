@@ -37,9 +37,18 @@ n_test_class=16
 # n_test_class=11
 
 generate='t5-large'
-for way_shot in '5way_1shot' 
+csv_path='elong_aug_support_test_DA'
+for way_shot in '5way-1shot' '5way-5shot'
 do
-    for DA_path in 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json'
+    if [ "$way_shot" = '5way-1shot' ]; then
+        way=5
+        shot=1
+    elif [ "$way_shot" = '5way-5shot' ]; then
+        way=5
+        shot=5
+    fi
+
+    for DA_path in 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json' 'data/huffpost_double_text.json'
     do
         r=0
         if [ "$DA_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" ]; then
@@ -48,13 +57,19 @@ do
             DA_name="EorN"
         elif [ "$DA_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" ]; then
             DA_name="N_only"
+        elif [ "$DA_path" = "data/huffpost_double_text.json" ]; then
+            DA_name="double_text"
         fi
 
         for seed in 42 80 100 200 300
         do
             ((r++))
-            result_path='result/elong_aug_query_'$way_shot'_'$generate'_'$DA_name'_'$r
-        
+            if [ "$DA_name" = "double_text" ]; then
+                result_path='result/'$csv_path'_'$way_shot'_'$DA_name'_'$r
+            else
+                result_path='result/'$csv_path'_'$way_shot'_'$generate'_'$DA_name'_'$r
+            fi
+
             if [ "$dataset" = "fewrel" ]; then
                 python src/main.py \
                     --cuda 0 \
@@ -74,9 +89,9 @@ do
                     --meta_w_target
             else
                 python src/main.py \
-                    --cuda 1 \
-                    --way 5 \
-                    --shot 1 \
+                    --cuda 0 \
+                    --way=$way \
+                    --shot=$shot \
                     --query 25 \
                     --mode train \
                     --embedding meta \
@@ -91,10 +106,15 @@ do
                     --DA_vocab use_DA \
                     --DA_path $DA_path \
                     --aug_mode elongation \
-                    --use_query_DA \
+                    --use_support_DA \
+                    --test_DA \
                     --result_path=$result_path \
+                    --csv_path=$csv_path \
                     --seed=$seed
-            fi
+            fi        
         done
     done
 done
+
+
+

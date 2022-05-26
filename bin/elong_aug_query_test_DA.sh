@@ -48,7 +48,7 @@ do
         shot=5
     fi
 
-    for DA_path in 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json'
+    for DA_path in 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json' 'data/huffpost_double_text.json'
     do
         r=0
         if [ "$DA_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" ]; then
@@ -57,6 +57,8 @@ do
             DA_name="EorN"
         elif [ "$DA_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" ]; then
             DA_name="N_only"
+                elif [ "$DA_path" = "data/huffpost_double_text.json" ]; then
+            DA_name="double_text"
         fi
 
         for seed in 42 80 100 200 300
