@@ -47,17 +47,18 @@ do
         shot=5
     fi
 
-    for data_path in 'data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json'
+    # for data_path in 'data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json' "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
+    for data_path in "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
     do
         r=0
         if [ "$data_path" = "data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json" ]; then
             DA_name="C_only"
-        # elif [ "$data_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json" ]; then
-        #     DA_name="EorN"
-        # elif [ "$data_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" ]; then
-        #     DA_name="N_only"
-        # elif [ "$data_path" = "data/huffpost_double_text.json" ]; then
-        #     DA_name="double_text"
+        elif [ "$data_path" = "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" ]; then
+            DA_name="C_only"
+        elif [ "$data_path" = "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json" ]; then
+            DA_name="EorN"        
+        elif [ "$data_path" = "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" ]; then
+            DA_name="N_only"
         fi
 
         for seed in 42 80 100 200 300
@@ -71,7 +72,7 @@ do
 
             if [ "$dataset" = "fewrel" ]; then
                 python src/main.py \
-                    --cuda 0 \
+                    --cuda 2 \
                     --way 5 \
                     --shot 1 \
                     --query 25 \
@@ -88,7 +89,7 @@ do
                     --meta_w_target
             else
                 python src/main.py \
-                    --cuda 1 \
+                    --cuda 2 \
                     --way=$way \
                     --shot=$shot \
                     --query 25 \

@@ -53,7 +53,7 @@ if [ "$dataset" = "fewrel" ]; then
         --meta_w_target
 else
     python src/main.py \
-        --cuda 0 \
+        --cuda 1 \
         --way 5 \
         --shot 1 \
         --query 25 \

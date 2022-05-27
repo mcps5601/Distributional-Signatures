@@ -47,6 +47,9 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# About install
+torch-1.1.0-cp37-cp37m-linux_x86_64.whl.1 
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
