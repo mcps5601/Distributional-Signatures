@@ -20,4 +20,5 @@ huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.j
 huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json,5-way 1-shot,200,0.5159200230240821,0.0995252495878105,0.5006080223917961,0.0979685624278956
 huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json,5-way 1-shot,300,0.5015200233459473,0.0798774719624118,0.4961440228819847,0.088717687241938
 huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json,5-way 1-shot,42,0.5586400249600411,0.0963596966745299,0.5281680241525173,0.0896537591015767
-huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json,5-way 1-shot,80,0.5564800253510476,0.08551637336062333,0.539664025053382,0.09030729812162137
+huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json,5-way 1-shot,80,0.5564800253510476,0.0855163733606233,0.539664025053382,0.0903072981216213
+huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json,5-way 1-shot,100,0.5429600250720977,0.08424463853932432,0.5348560250401497,0.09582135606283503
