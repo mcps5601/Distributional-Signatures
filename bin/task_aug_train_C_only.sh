@@ -60,7 +60,7 @@ do
         elif [ "$data_path" = "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" ]; then
             DA_name="N_only"
         fi
-
+ 
         for seed in 42 80 100 200 300
         do
             ((r++))
