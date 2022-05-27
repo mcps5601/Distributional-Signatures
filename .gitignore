@@ -9,7 +9,8 @@ result_csv/
 
 # tmp
 result_csv/task_aug_all
-result_csv/task_aug_train_val_C_only+exclude_test_query
+result_csv/task_aug_train_val_C_only_exclude_test_query
+result_csv_copy/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
