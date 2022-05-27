@@ -13,3 +13,4 @@ huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.j
 huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json,5-way 1-shot,80,0.5528666660189628,0.0724139540060265,,
 huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json,5-way 1-shot,100,0.5460333271324634,0.1861168574229561,,
 huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json,5-way 1-shot,200,0.593666661977768,0.177965348714424,,
+huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json,5-way 1-shot,300,,,,
