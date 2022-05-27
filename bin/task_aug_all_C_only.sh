@@ -72,7 +72,7 @@ do
 
             if [ "$dataset" = "fewrel" ]; then
                 python src/main.py \
-                    --cuda 2 \
+                    --cuda 0 \
                     --way 5 \
                     --shot 1 \
                     --query 25 \
@@ -89,7 +89,7 @@ do
                     --meta_w_target
             else
                 python src/main.py \
-                    --cuda 2 \
+                    --cuda 1 \
                     --way=$way \
                     --shot=$shot \
                     --query 25 \

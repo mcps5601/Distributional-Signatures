@@ -13,4 +13,11 @@ huffpost,data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json,5-way 5-shot,
 huffpost,data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json,5-way 5-shot,80,0.573520025908947,0.0837344040898169,0.631768030166626,0.0778281884625118
 huffpost,data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json,5-way 5-shot,100,0.5811200270056724,0.0794341646725989,0.6306400277912617,0.074249787258106
 huffpost,data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json,5-way 5-shot,200,0.5464800241589546,0.0802691101006773,0.6301200277209282,0.0785939567715219
-huffpost,data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json,5-way 5-shot,300,0.5636800250411034,0.07395064689814115,0.6354240290522576,0.06692554444012341
+huffpost,data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json,5-way 5-shot,300,0.5636800250411034,0.0739506468981411,0.6354240290522576,0.0669255444401234
+huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json,5-way 1-shot,42,0.5198400229215622,0.0749013657952487,0.4993360217511653,0.0908636333825468
+huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json,5-way 1-shot,80,0.5033600249886513,0.0783892291940244,0.494600020468235,0.084142500960156
+huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json,5-way 1-shot,100,0.4752800193428993,0.0894934697818933,0.4857520218491554,0.0889699456638136
+huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json,5-way 1-shot,200,0.5159200230240821,0.0995252495878105,0.5006080223917961,0.0979685624278956
+huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json,5-way 1-shot,300,0.5015200233459473,0.0798774719624118,0.4961440228819847,0.088717687241938
+huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json,5-way 1-shot,42,0.5586400249600411,0.0963596966745299,0.5281680241525173,0.0896537591015767
+huffpost,data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json,5-way 1-shot,80,0.5564800253510476,0.08551637336062333,0.539664025053382,0.09030729812162137
