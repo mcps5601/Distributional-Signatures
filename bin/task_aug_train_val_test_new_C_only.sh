@@ -89,7 +89,7 @@ do
                     --meta_w_target
             else
                 python src/main.py \
-                    --cuda １ \
+                    --cuda 0 \
                     --way=$way \
                     --shot=$shot \
                     --query 25 \
