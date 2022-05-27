@@ -17,11 +17,10 @@
 # n_test_class=7
 
 dataset=huffpost
-data_path="data/huffpost.json"
-# DA_path="data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
+# data_path="data/aug_all_ishan_select_huffpost_G1_10N_top-k_40.json"
 
-n_train_class=20
-n_val_class=5
+n_train_class=40
+n_val_class=10
 n_test_class=16
 
 #dataset=rcv1
@@ -36,8 +35,8 @@ n_test_class=16
 # n_val_class=5
 # n_test_class=11
 
-generate='t5-large'
-csv_path='elong_aug_query'
+generate='nli-generator'
+csv_path='task_aug_train_val'
 for way_shot in '5way-1shot' '5way-5shot'
 do
     if [ "$way_shot" = '5way-1shot' ]; then
@@ -48,38 +47,33 @@ do
         shot=5
     fi
 
-    # for DA_path in 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json' "data/huffpost_double_text.json"
-    for DA_path in "data/huffpost_double_text.json"
+    for data_path in 'data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json'
     do
         r=0
-        if [ "$DA_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" ]; then
+        if [ "$data_path" = "data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json" ]; then
             DA_name="C_only"
-        elif [ "$DA_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json" ]; then
-            DA_name="EorN"
-        elif [ "$DA_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" ]; then
-            DA_name="N_only"
-        elif [ "$DA_path" = "data/huffpost_double_text.json" ]; then
-            DA_name="double_text"
+        # elif [ "$data_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json" ]; then
+        #     DA_name="EorN"
+        # elif [ "$data_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" ]; then
+        #     DA_name="N_only"
+        # elif [ "$data_path" = "data/huffpost_double_text.json" ]; then
+        #     DA_name="double_text"
         fi
 
         for seed in 42 80 100 200 300
         do
             ((r++))
-            if [ "$r" -lt 4 ]; then
-                continue
-            fi
-
             if [ "$DA_name" = "double_text" ]; then
                 result_path='result/'$csv_path'_'$way_shot'_'$DA_name'_'$r
             else
                 result_path='result/'$csv_path'_'$way_shot'_'$generate'_'$DA_name'_'$r
-            fi            
-            
+            fi
+
             if [ "$dataset" = "fewrel" ]; then
                 python src/main.py \
                     --cuda 0 \
                     --way 5 \
-                    --shot 1 \
+                    --shot 5 \
                     --query 25 \
                     --mode train \
                     --embedding meta \
@@ -108,10 +102,9 @@ do
                     --n_test_class=$n_test_class \
                     --meta_iwf \
                     --meta_w_target \
-                    --DA_vocab use_DA \
-                    --DA_path $DA_path \
-                    --aug_mode elongation \
-                    --use_query_DA \
+                    --aug_mode task \
+                    --task_aug_target train_val \
+                    --task_aug_exclude_val_query \
                     --result_path=$result_path \
                     --csv_path=$csv_path \
                     --seed=$seed
