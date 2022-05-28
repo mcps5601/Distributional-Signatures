@@ -48,7 +48,8 @@ do
     fi
 
     # for data_path in 'data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json' "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
-    for data_path in "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
+    # for data_path in "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
+    for data_path in 'data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json'
     do
         r=0
         if [ "$data_path" = "data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json" ]; then
@@ -107,7 +108,7 @@ do
                     --task_aug_target train_val \
                     --test_new_only \
                     --result_path=$result_path \
-                    --csv_path=$csv_path
+                    --csv_path=$csv_path \
                     --seed=$seed
             fi
         done

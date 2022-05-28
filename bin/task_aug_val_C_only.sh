@@ -36,7 +36,8 @@ n_test_class=16
 # n_test_class=11
 
 generate='nli-generator'
-csv_path='task_aug_all'
+# csv_path='task_aug_all'       # error log
+csv_path='task_aug_val' 
 for way_shot in '5way-1shot' '5way-5shot'
 do
     if [ "$way_shot" = '5way-1shot' ]; then
@@ -48,7 +49,8 @@ do
     fi
 
     # for data_path in 'data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json' "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
-    for data_path in "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
+    # for data_path in "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json" "data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
+    for data_path in "data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json"
     do
         r=0
         if [ "$data_path" = "data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json" ]; then

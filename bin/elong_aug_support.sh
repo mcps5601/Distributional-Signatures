@@ -48,7 +48,8 @@ do
         shot=5
     fi
 
-    for DA_path in 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json' 'data/huffpost_double_text.json'
+    # for DA_path in 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json' 'data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json' 'data/huffpost_double_text.json'
+    for DA_path in "data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json"      # nli-generator
     do
         r=0
         if [ "$DA_path" = "data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json" ]; then
@@ -59,6 +60,9 @@ do
             DA_name="N_only"
         elif [ "$DA_path" = "data/huffpost_double_text.json" ]; then
             DA_name="double_text"
+        elif [ "$DA_path" = "data/aug_all_roberta_select_huffpost_G1_10N_top-k_40.json" ]; then
+            DA_name="C_only"
+            generate="nli-generator"
         fi
 
         for seed in 42 80 100 200 300
