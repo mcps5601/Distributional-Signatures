@@ -36,7 +36,7 @@ def parse_args():
     )
     parser.add_argument(
         "--aug_mode",
-        choices=["elongation", "shot", "task"],
+        choices=["elongation", "shot", "task", "mix"],
         help='Choice for data augmentation method.',
     )
     parser.add_argument(
@@ -91,6 +91,12 @@ def parse_args():
         choices=["", "use_old", "use_DA"],
         help="Determine which vocab used for DA sentences. This argument is for elong_aug and shot_aug.",
         default="use_old",
+    )
+    parser.add_argument(
+        "--fix_conflicts",
+        action="store_true",
+        help="Fix conflicts of classes during task augmentation.",
+        default=False,
     )
     parser.add_argument("--dataset", type=str, default="reuters",
                         help="name of the dataset. "
@@ -327,8 +333,9 @@ def set_seed(seed):
     np.random.seed(seed)
 
 
-def main():
+def main(seed):
     args = parse_args()
+    args.seed = seed
 
     print_args(args)
 
@@ -406,14 +413,24 @@ def main():
 
         with open(args.result_path, "wb") as f:
             pickle.dump(result, f, pickle.HIGHEST_PROTOCOL)
+    return val_acc, val_std, test_acc, test_std
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception:
-        exc_info = sys.exc_info()
-        traceback.print_exception(*exc_info)
-        os.killpg(0, signal.SIGKILL)
+    val_accs, val_stds, test_accs, test_stds = [], [], [], []
+    for seed in [42, 80, 100, 200, 300]:
+    # for seed in [326, 327, 328, 329, 330]:   
+        try:
+            _ = [x.append(y) for x, y in zip([val_accs, val_stds, test_accs, test_stds], main(seed))]
+            
+        except Exception:
+            exc_info = sys.exc_info()
+            traceback.print_exception(*exc_info)
+            os.killpg(0, signal.SIGKILL)
 
-    exit(0)
+        # exit(0)
+
+    print(f"Val acc mean: {np.mean(val_accs)}")
+    print(f"Val acc std: {np.mean(val_stds)}")
+    print(f"Test acc mean: {np.mean(test_accs)}")
+    print(f"Test acc std: {np.mean(test_stds)}")
