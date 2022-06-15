@@ -119,7 +119,7 @@ def parse_args():
                               "huffpost, fewrel"))
     parser.add_argument("--bert_cache_dir", default=None, type=str,
                         help=("path to the cache_dir of transformers"))
-    parser.add_argument("--pretrained_bert", default=None, type=str,
+    parser.add_argument("--pretrained_bert", default='bert-base-uncased', type=str,
                         help=("path to the pre-trained bert embeddings."))
 
     # task configuration
@@ -333,9 +333,13 @@ def set_seed(seed):
     np.random.seed(seed)
 
 
-def main(seed):
+def main(seed, dataindex=None):
     args = parse_args()
     args.seed = seed
+
+    if args.dataset == 'banking77' and dataindex != None:
+        args.data_path = args.data_path.split(".")[0] + f"_{dataindex}.json"
+        # args.data_path = args.data_path.split(".")[0] + "_1.json"
 
     print_args(args)
 
@@ -418,10 +422,10 @@ def main(seed):
 
 if __name__ == "__main__":
     val_accs, val_stds, test_accs, test_stds = [], [], [], []
-    for seed in [42, 80, 100, 200, 300]:
+    for i, seed in enumerate([42, 80, 100, 200, 300]):
     # for seed in [326, 327, 328, 329, 330]:   
         try:
-            _ = [x.append(y) for x, y in zip([val_accs, val_stds, test_accs, test_stds], main(seed))]
+            _ = [x.append(y) for x, y in zip([val_accs, val_stds, test_accs, test_stds], main(seed, i))]
             
         except Exception:
             exc_info = sys.exc_info()
