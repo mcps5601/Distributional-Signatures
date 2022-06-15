@@ -64,7 +64,11 @@ class R2D2(BASE):
             @return loss
         '''
         if self.args.aug_mode == 'task' and test_mode:
-            old_acc_masks = YQ < 41
+            if self.args.dataset == 'huffpost':
+                max_label_id = 41
+            elif self.args.dataset == 'banking77':
+                max_label_id = 77
+            old_acc_masks = YQ < max_label_id
 
         YS, YQ = self.reidx_y(YS, YQ)
 
