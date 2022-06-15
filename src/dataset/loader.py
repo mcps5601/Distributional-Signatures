@@ -152,7 +152,32 @@ def _get_huffpost_classes(args):
             test_classes = test_classes + list(range(66, 82))
         elif args.test_new_only:
             test_classes = list(range(66, 82))
-        
+    elif args.aug_mode == 'mix':
+        train_classes = list(range(41, 41+190))
+
+    return train_classes, val_classes, test_classes
+
+
+def _get_banking77_classes(args):
+    '''
+        @return list of classes associated with each split
+    '''
+    train_classes = list(range(25))
+    val_classes = list(range(25, 50))
+    test_classes = list(range(50, 77))
+
+    if args.aug_mode == 'task':
+        if args.task_aug_target == 'train':
+            train_classes = train_classes + list(range(77, 102))
+        elif args.task_aug_target == 'train_val':
+            train_classes = train_classes + list(range(77, 102))
+            val_classes = val_classes + list(range(102, 127))
+        elif args.task_aug_target == 'val':
+            val_classes = val_classes + list(range(102, 127))
+        if args.task_aug_test:
+            test_classes = test_classes + list(range(127, 154))
+        elif args.test_new_only:
+            test_classes = list(range(127, 154))
 
     return train_classes, val_classes, test_classes
 
@@ -285,7 +310,7 @@ def _data_to_nparray(data, vocab, args):
 
     if args.bert:
         tokenizer = BertTokenizer.from_pretrained(
-                'bert-base-uncased', do_lower_case=True)
+                args.pretrained_bert, do_lower_case=True)
 
         # convert to wpe
         vocab_size = 0  # record the maximum token id for computing idf
@@ -409,6 +434,8 @@ def load_dataset(args, vocab_exists=None):
         train_classes, val_classes, test_classes = _get_reuters_classes(args)
     elif args.dataset == 'rcv1':
         train_classes, val_classes, test_classes = _get_rcv1_classes(args)
+    elif args.dataset == 'banking77':
+        train_classes, val_classes, test_classes = _get_banking77_classes(args)
     else:
         raise ValueError(
             'args.dataset should be one of'

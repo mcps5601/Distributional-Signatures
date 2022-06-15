@@ -227,6 +227,9 @@ def test_one(task, model, args, test_mode):
     YQ = query['label']
 
     # Apply the classifier
-    acc, _ = model['clf'](XS, YS, XQ, YQ, test_mode)
+    if args.aug_mode == 'task':
+        acc, _ = model['clf'](XS, YS, XQ, YQ, test_mode)
+    else:
+        acc, _ = model['clf'](XS, YS, XQ, YQ)
 
     return acc
