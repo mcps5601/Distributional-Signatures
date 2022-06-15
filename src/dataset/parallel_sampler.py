@@ -1,5 +1,6 @@
 import time
 import datetime
+import random
 from multiprocessing import Process, Queue, cpu_count
 
 import torch
@@ -77,8 +78,30 @@ class ParallelSampler():
                 time.sleep(1)
                 continue
             # sample ways
-            sampled_classes = np.random.permutation(
-                    self.num_classes)[:self.args.way]
+            if (self.args.dataset == 'huffpost' and self.num_classes in [40, 10, 32] and self.args.fix_conflicts) or \
+            (self.args.dataset == 'banking77' and self.num_classes in [50, 54] and self.args.fix_conflicts):
+                # Fix class conflicts in task augmentation.
+                boundary = int(self.num_classes / 2)
+                old_classes = list(range(0, boundary))
+                new_classes = list(range(boundary, self.num_classes))    
+
+                sampled_classes = []
+                for _ in range(self.args.way):
+                    if random.random() > 0.5:
+                        while True:
+                            tmp_class = random.choice(old_classes)
+                            if tmp_class not in sampled_classes:
+                                sampled_classes.append(tmp_class)
+                                break
+                    else:
+                        while True:
+                            tmp_class = random.choice(new_classes)
+                            if tmp_class not in sampled_classes:
+                                sampled_classes.append(tmp_class)
+                                break
+            else:
+                sampled_classes = np.random.permutation(
+                        self.num_classes)[:self.args.way]
 
             source_classes = []
             for j in range(self.num_classes):
