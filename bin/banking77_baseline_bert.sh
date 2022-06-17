@@ -17,7 +17,7 @@
 # n_test_class=7
 
 dataset=banking77
-data_path="/data/workspace/Fewshot/data/banking77.json"
+data_path="data/banking77.json"
 
 n_train_class=25
 n_val_class=25
