@@ -1,4 +1,7 @@
 import itertools
+import numpy as np
+import scipy.stats
+import math
 
 
 def named_grad_param(model, keys):
@@ -43,3 +46,15 @@ def get_norm(model):
     total_norm = total_norm ** 0.5
 
     return total_norm
+
+
+def mean_confidence_interval(data, confidence=0.95):
+    a = 1.0 * np.array(data)
+    n = len(a)
+    m, se = np.mean(a), scipy.stats.sem(a)
+    h = se * scipy.stats.t.ppf((1 + confidence) / 2., n-1)
+    return h
+
+
+def mean_confidence_interval_known(data, confidence=0.95):
+    return 1.96 * np.std(data) / math.sqrt(len(data))

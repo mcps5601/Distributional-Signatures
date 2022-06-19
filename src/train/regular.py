@@ -10,7 +10,7 @@ from tqdm import tqdm
 from termcolor import colored
 
 from dataset.parallel_sampler import ParallelSampler
-from train.utils import named_grad_param, grad_param, get_norm
+from train.utils import named_grad_param, grad_param, get_norm, mean_confidence_interval, mean_confidence_interval_known
 
 
 def train(train_data, val_data, model, args, DA_data=None):
@@ -175,7 +175,7 @@ def train_one(task, model, opt, args, grad):
     opt.step()
 
 
-def test(test_data, model, args, num_episodes, verbose=True, sampled_tasks=None, DA_data=None, test_mode=None):
+def test(test_data, model, args, num_episodes, verbose=True, sampled_tasks=None, DA_data=None, test_mode=None, save_query_embs=None):
     '''
         Evaluate the model on a bag of sampled tasks. Return the mean accuracy
         and its std.
@@ -194,12 +194,19 @@ def test(test_data, model, args, num_episodes, verbose=True, sampled_tasks=None,
         sampled_tasks = tqdm(sampled_tasks, total=num_episodes, ncols=80,
                              leave=False,
                              desc=colored('Testing on val', 'yellow'))
-    for task in sampled_tasks:
+    for episode_i, task in enumerate(sampled_tasks):
         try:
-            acc.append(test_one(task, model, args, test_mode))
+            acc.append(test_one(task, model, args, test_mode, save_query_embs, episode_i))
 
         except RuntimeError:
             continue
+
+    if num_episodes >= 500:
+        assert num_episodes == len(acc)
+        print("Yes, we know std.")
+        std = mean_confidence_interval_known(acc)
+    else:
+        std = mean_confidence_interval(acc)
 
     if verbose:
         print("{}, {:s} {:>7.4f}, {:s} {:>7.4f}".format(
@@ -207,13 +214,15 @@ def test(test_data, model, args, num_episodes, verbose=True, sampled_tasks=None,
                 colored("acc mean", "blue"),
                 np.mean(acc),
                 colored("std", "blue"),
-                np.std(acc),
+                std,
+                # np.std(acc),
                 ), flush=True)
 
-    return np.mean(acc), np.std(acc)
+    return np.mean(acc), std
+    # return np.mean(acc), np.std(acc)
 
 
-def test_one(task, model, args, test_mode):
+def test_one(task, model, args, test_mode, save_query_embs=None, episode_i=None):
     '''
         Evaluate the model on one sampled task. Return the accuracy.
     '''
@@ -224,6 +233,12 @@ def test_one(task, model, args, test_mode):
     YS = support['label']
 
     XQ = model['ebd'](query)
+    # if save_query_embs:
+    #     if XQ.shape[0] == (args.query*args.way):
+    #         mode = Path(args.data_path).stem.split("_")[0]
+    #         with open(f'{mode}_seed{args.seed}_{episode_i}.pkl', 'wb') as f:
+    #             pickle.dump(XQ, f)
+
     YQ = query['label']
 
     # Apply the classifier
