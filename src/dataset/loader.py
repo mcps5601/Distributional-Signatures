@@ -535,6 +535,8 @@ def load_dataset(args, vocab_exists=None):
 def load_DA_data(args, vocab_exists=None):
     if args.dataset == 'huffpost':
         train_classes, val_classes, test_classes = _get_huffpost_classes(args)
+    elif args.dataset == 'banking77':
+        train_classes, val_classes, test_classes = _get_banking77_classes(args)
 
     tprint('Loading data')
     all_data = _load_json(args.DA_path)

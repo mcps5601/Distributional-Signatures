@@ -42,10 +42,11 @@ if [ "$dataset" = "fewrel" ]; then
         --meta_iwf \
         --meta_w_target
 else
-    python src/main.py \
+    shot=1
+    CUDA_LAUNCH_BLOCKING=1 python src/main.py >> ${dataset}_bert_baseline_${shot}s_new.txt \
         --cuda 0 \
         --way 5 \
-        --shot 5 \
+        --shot $shot \
         --query 25 \
         --mode train \
         --embedding meta \

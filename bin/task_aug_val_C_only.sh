@@ -19,11 +19,11 @@
 dataset=huffpost
 # data_path="data/aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json"
 data_path="data/task_aug_all_t5-large_huffpost_roberta-large-mnli_10N_top-k_40_C_only.json"
+# data_path="/data/workspace/Fewshot/data/task_aug_all_t5-3b_contradictions_huffpost_10N_top-k_40roberta-large-mnli_C_only.json"
 
 n_train_class=20
 n_val_class=10
 n_test_class=16
-seed=328
 
 #dataset=rcv1
 #data_path="data/rcv1.json"
@@ -57,7 +57,6 @@ if [ "$dataset" = "fewrel" ]; then
 else
     python src/main.py \
         --cuda 0 \
-        --seed $seed \
         --way 5 \
         --shot 1 \
         --query 25 \
@@ -73,5 +72,5 @@ else
         --meta_w_target \
         --aug_mode task \
         --task_aug_target val \
-        --task_aug_exclude_val_query
+        --fix_conflicts
 fi

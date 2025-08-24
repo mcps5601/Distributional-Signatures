@@ -71,5 +71,5 @@ else
         --meta_w_target \
         --aug_mode task \
         --task_aug_target train_val \
-        --task_aug_exclude_val_query
+        --fix_conflicts
 fi

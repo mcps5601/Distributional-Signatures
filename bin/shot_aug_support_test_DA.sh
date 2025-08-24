@@ -18,7 +18,7 @@
 
 dataset=huffpost
 data_path="data/huffpost.json"
-DA_path="data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
+DA_path="/data/workspace/Fewshot/data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json"
 # DA_path="data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_E_only.json"
 
 n_train_class=20
@@ -37,6 +37,7 @@ n_test_class=16
 # n_val_class=5
 # n_test_class=11
 
+N=10
 if [ "$dataset" = "fewrel" ]; then
     python src/main.py \
         --cuda 0 \
@@ -55,10 +56,12 @@ if [ "$dataset" = "fewrel" ]; then
         --meta_iwf \
         --meta_w_target
 else
-    python src/main.py \
-        --cuda 0 \
+for shot in 5
+do
+    python src/main.py >> shot_aug_ours_huffpost_${shot}s_${N}N.txt \
+        --cuda 1 \
         --way 5 \
-        --shot 1 \
+        --shot $shot \
         --query 25 \
         --mode train \
         --embedding meta \
@@ -75,4 +78,5 @@ else
         --aug_mode shot \
         --use_support_DA \
         --test_DA
+done
 fi

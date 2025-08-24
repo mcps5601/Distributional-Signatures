@@ -18,7 +18,8 @@
 
 dataset=huffpost
 data_path="data/huffpost.json"
-DA_path="data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
+# DA_path="data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_EorN.json"
+DA_path="/data/workspace/Fewshot/data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_N_only.json"
 # DA_path="data/t5-large_huffpost_roberta-large-mnli_10N_top-k_40_E_only.json"
 
 n_train_class=20

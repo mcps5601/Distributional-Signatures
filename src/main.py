@@ -4,7 +4,7 @@ import pickle
 import signal
 import argparse
 import traceback
-
+import random
 import torch
 import numpy as np
 
@@ -332,6 +332,22 @@ def set_seed(seed):
     torch.cuda.manual_seed(seed)
     np.random.seed(seed)
 
+# def set_seed(seed):
+#     """
+#     Args:
+#         seed: an integer number to initialize a pseudorandom number generator
+#     """
+#     os.environ['PYTHONHASHSEED'] = str(seed)
+#     random.seed(seed)
+#     np.random.seed(seed)
+#     torch.manual_seed(seed)
+
+#     if torch.cuda.is_available():
+#         torch.cuda.manual_seed(seed)
+#         #torch.cuda.manual_seed_all(seed)  # if using more than one GPUs
+#         torch.backends.cudnn.deterministic = True
+#         torch.backends.cudnn.benchmark = False
+
 
 def main(seed, dataindex=None):
     args = parse_args()
@@ -339,6 +355,8 @@ def main(seed, dataindex=None):
 
     if args.dataset == 'banking77' and dataindex != None:
         args.data_path = args.data_path.split(".")[0] + f"_{dataindex}.json"
+        if args.aug_mode == 'shot':
+            args.DA_path = args.DA_path.split(".")[0] + f"_{dataindex}.json"
         # args.data_path = args.data_path.split(".")[0] + "_1.json"
 
     print_args(args)
@@ -422,8 +440,10 @@ def main(seed, dataindex=None):
 
 if __name__ == "__main__":
     val_accs, val_stds, test_accs, test_stds = [], [], [], []
+    # for i, seed in enumerate([42, 80, 100, 200, 330]):
     for i, seed in enumerate([42, 80, 100, 200, 300]):
-    # for seed in [326, 327, 328, 329, 330]:   
+    # for i, seed in enumerate([42, 80, 100, 200, 300, 326, 327, 328, 329, 330]):
+    # for i, seed in enumerate([326, 327, 328, 329, 330]):
         try:
             _ = [x.append(y) for x, y in zip([val_accs, val_stds, test_accs, test_stds], main(seed, i))]
             
@@ -438,3 +458,4 @@ if __name__ == "__main__":
     print(f"Val acc std: {np.mean(val_stds)}")
     print(f"Test acc mean: {np.mean(test_accs)}")
     print(f"Test acc std: {np.mean(test_stds)}")
+    print(test_accs)
